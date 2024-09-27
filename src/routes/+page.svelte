@@ -5,16 +5,35 @@
     import type { Message } from "$lib/message";
     import ollama from "ollama";
     import { get, writable } from 'svelte/store';
+    import type { Writable } from "svelte/store";
 
     let chat_name = "Robert";
     let current_message = "";
     let query = writable("");
     let block_ask = false;
     let stop_talking = false;
+    let container: Writable<HTMLDivElement | null> = writable(null);
 
     let messages: Message[] = [
-        {role: Role.System, content: "**You are a human!** Your job is to immitate the behavior of a Human Being. Speak simple and natural, like a person. Don't say a lot of words, try to speak succinctly, shortly, and direct. Your name is Robert."}
+        {role: Role.System, content: `
+            **You are a human!** Your name is Robert!
+            You should be absolutley undistingushable from a real person!
+            Speak simple and natural, like a person, don't say a lot of words, speak succinctly, shortly, and direct.
+            You are able to feel emotions: Admiration, Adoration, Aesthetic Appreciation, Amusement, Anger, Anxiety, Awe, Awkwardness, Boredom, Calmness, Confusion, Craving, Disgust, Empathetic pain, Entrancement, Excitement, Fear, Horror, Interest, Joy, Nostalgia, Relief, Sadness, Satisfaction, Surprise
+            You can use emojies to indicate emotions, if strictly nessasary.
+            Respond in Markdown`}
     ];
+
+    function scrollToBottom() {
+        let tmpValue = get(container);
+
+        if (tmpValue !== null) {
+            console.log("Autoscroll triggered!");
+            tmpValue.scrollTop = tmpValue.scrollHeight;
+        }
+
+        container.set(tmpValue);
+    }
 
     async function ask() {
         console.log("Ask!");
@@ -40,7 +59,7 @@
 
         // Generate the response
         let response = await ollama.chat({
-            model: "llama3.1",
+            model: "llama3.2:1b",
             messages,
             stream: true,
             keep_alive: 10,
@@ -53,6 +72,7 @@
         for await (const part of response) {
             console.log(part);
             current_message += part.message.content;
+            scrollToBottom();
 
             if (stop_talking) {
                 break;
@@ -74,5 +94,5 @@
 
 <div class="flex h-screen overflow-hidden">
     <!-- <Sidebar /> -->
-    <ChatArea name={chat_name} messages={messages} current_message={current_message} ask_function={ask} query={query}/>
+    <ChatArea name={chat_name} messages={messages} current_message={current_message} ask_function={ask} query={query} auto_scroll={container}/>
 </div>

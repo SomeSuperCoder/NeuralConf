@@ -8,6 +8,7 @@
     export let current_message: string;
     export let ask_function: any;
     export let query: Writable<string>;
+    export let auto_scroll: Writable<HTMLDivElement | null>;
     
     let current_message_object;
     $: current_message_object = {role: Role.Assistant, content: current_message} as Message;
@@ -21,7 +22,7 @@
     </header>
 
     <!-- Chat Messages -->
-    <div class="h-screen overflow-y-auto p-4 pb-36">
+    <div bind:this={$auto_scroll} class="h-screen overflow-y-auto p-4 pb-36">
         {#each messages as message}
         <MessageCard message={message} />
         {/each}
@@ -41,7 +42,7 @@
                 class="w-full p-2 rounded-md border border-gray-400 focus:outline-none focus:border-blue-500"
                 bind:value={$query}
             />
-            <button class="bg-indigo-500 text-white px-4 py-2 rounded-md ml-2" on:click={ask_function}
+            <button class="bg-indigo-500 hover:bg-indigo-400 active:bg-indigo-300 text-white px-4 py-2 rounded-md ml-2" on:click={ask_function}
                 >Отправить</button
             >
         </div>
