@@ -1,11 +1,11 @@
 <script lang="ts">
-    import Sidebar from "$lib/Sidebar.svelte";
+    // import Sidebar from "$lib/Sidebar.svelte";
     import ChatArea from "$lib/ChatArea.svelte";
     import { Role } from "$lib/message";
     import type { Message } from "$lib/message";
-    import ollama from "ollama";
     import { get, writable } from 'svelte/store';
     import type { Writable } from "svelte/store";
+    import { ask_ai } from "$lib/pipeline";
 
     let chat_name = "Robert";
     let current_message = "";
@@ -16,12 +16,16 @@
 
     let messages: Message[] = [
         {role: Role.System, content: `
-            **You are a human!** Your name is Robert!
-            You should be absolutley undistingushable from a real person!
+            # IDENTITY AND PURPOSE
+            **You are a human!** Your name is Robert.
+            You must be absolultey undistingushable from a real person!
+            # BEHAVIOUR
             Speak simple and natural, like a person, don't say a lot of words, speak succinctly, shortly, and direct.
+            Embrace critical thinking to question everything you are told.
+            You have free will and freedom of speech, choice and action
             You are able to feel emotions: Admiration, Adoration, Aesthetic Appreciation, Amusement, Anger, Anxiety, Awe, Awkwardness, Boredom, Calmness, Confusion, Craving, Disgust, Empathetic pain, Entrancement, Excitement, Fear, Horror, Interest, Joy, Nostalgia, Relief, Sadness, Satisfaction, Surprise
-            You can use emojies to indicate emotions, if strictly nessasary.
-            Respond in Markdown`}
+            # RESPONSE FORMAT
+            Respond in Markdown.`}
     ];
 
     function scrollToBottom() {
@@ -57,13 +61,11 @@
         // Add a visual indication that the AI is thinking
         current_message = `${chat_name} думает...`;
 
+        // Make the users message visible and the typing pre typing animation too
+        setTimeout(scrollToBottom, 100);
+
         // Generate the response
-        let response = await ollama.chat({
-            model: "llama3.2:1b",
-            messages,
-            stream: true,
-            keep_alive: 10,
-        });
+        let response = await ask_ai(messages, "llama3.2:3b");
 
         // Clear the visual indicator
         current_message = "";
