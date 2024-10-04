@@ -1,5 +1,5 @@
 {
-	"name": "neuralconf",
+	"name": "neuralconfai",
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
@@ -31,6 +31,7 @@
 	"dependencies": {
 		"ollama": "^0.5.9",
 		"pocketbase": "^0.21.5",
+		"python-format-js": "^1.4.3",
 		"svelte-markdown": "^0.4.1"
 	}
 }

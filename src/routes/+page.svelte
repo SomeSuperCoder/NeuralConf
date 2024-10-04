@@ -5,28 +5,22 @@
     import type { Message } from "$lib/message";
     import { get, writable } from 'svelte/store';
     import type { Writable } from "svelte/store";
-    import { ask_ai } from "$lib/pipeline";
+    import { ask_ai, format_message } from "$lib/pipeline";
+    import { load_bot } from "$lib/bot";
+    import type { Bot } from "$lib/bot";
 
-    let chat_name = "Robert";
     let current_message = "";
     let query = writable("");
     let block_ask = false;
     let stop_talking = false;
     let container: Writable<HTMLDivElement | null> = writable(null);
+    
+    let bot: Bot;
 
-    let messages: Message[] = [
-        {role: Role.System, content: `
-            # IDENTITY AND PURPOSE
-            **You are a human!** Your name is Robert.
-            You must be absolultey undistingushable from a real person!
-            # BEHAVIOUR
-            Speak simple and natural, like a person, don't say a lot of words, speak succinctly, shortly, and direct.
-            Embrace critical thinking to question everything you are told.
-            You have free will and freedom of speech, choice and action
-            You are able to feel emotions: Admiration, Adoration, Aesthetic Appreciation, Amusement, Anger, Anxiety, Awe, Awkwardness, Boredom, Calmness, Confusion, Craving, Disgust, Empathetic pain, Entrancement, Excitement, Fear, Horror, Interest, Joy, Nostalgia, Relief, Sadness, Satisfaction, Surprise
-            # RESPONSE FORMAT
-            Respond in Markdown.`}
-    ];
+    async function initializeBot() {
+        bot = await load_bot("jack");
+    };
+    initializeBot();
 
     function scrollToBottom() {
         let tmpValue = get(container);
@@ -50,22 +44,22 @@
         block_ask = true;
 
         // Add the user's message
-        messages = [
-            ...messages,
-            { role: Role.User, content: get(query) } as Message
+        bot.messages = [
+            ...bot.messages,
+            { role: Role.User, content: format_message("allen", get(query)) } as Message
         ];
 
         // Clear the input
         query.set("");
 
         // Add a visual indication that the AI is thinking
-        current_message = `${chat_name} думает...`;
+        current_message = `${bot.name} думает...`;
 
         // Make the users message visible and the typing pre typing animation too
         setTimeout(scrollToBottom, 100);
 
         // Generate the response
-        let response = await ask_ai(messages, "llama3.2:3b");
+        let response = await ask_ai(bot.messages, bot.model);
 
         // Clear the visual indicator
         current_message = "";
@@ -82,8 +76,8 @@
         }
         
         // Add the AI response to the chat history
-        messages = [
-            ...messages,
+        bot.messages = [
+            ...bot.messages,
             { role: Role.Assistant, content: current_message } as Message,
         ];
 
@@ -96,5 +90,14 @@
 
 <div class="flex h-screen overflow-hidden">
     <!-- <Sidebar /> -->
-    <ChatArea name={chat_name} messages={messages} current_message={current_message} ask_function={ask} query={query} auto_scroll={container}/>
+     {#if bot !== undefined}
+    <ChatArea name="Чат NeuralConf" messages={bot.messages} current_message={current_message} ask_function={ask} query={query} auto_scroll={container}/>
+    {/if}
 </div>
+
+<style>
+    .thought {
+        color: gray;
+        font-style: italic;
+    }
+</style>

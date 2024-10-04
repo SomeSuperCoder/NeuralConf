@@ -10,6 +10,11 @@ export async function ask_ai(messages: Message[], model: string) {
     });
 }
 
+export function format_message(sender_id: string, message: string) {
+    // return `@${sender_id} says to you: "${message}"`
+    return message;
+}
+
 export async function collect_response(response: any): Promise<string> {
     let result = "";
 
