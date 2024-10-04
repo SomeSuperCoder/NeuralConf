@@ -9,7 +9,7 @@
     <div class="flex max-w-96 bg-indigo-500 text-white rounded-lg p-3 gap-3">
         <p>
             <!-- <SvelteMarkdown source={text.split(":", 2)[1].slice(2, -1)}/> 问 -->
-            <SvelteMarkdown source={text} />
+            <SvelteMarkdown source={text}/>
         </p>
     </div>
     <div class="w-9 h-9 rounded-full flex items-center justify-center ml-2">

@@ -11,9 +11,9 @@
 
     let current_message = "";
     let query = writable("");
-    let block_ask = false;
     let stop_talking = false;
     let container: Writable<HTMLDivElement | null> = writable(null);
+    let is_typing = false;
     
     let bot: Bot;
 
@@ -37,23 +37,25 @@
         console.log("Ask!");
 
         // Make sure two querys are not sent at the same time
-        if (block_ask) {
+        if (is_typing) {
             console.log("Block ask!");
             return;
         }
-        block_ask = true;
+
+        // Add spinner animation
+        is_typing = true;
 
         // Add the user's message
         bot.messages = [
             ...bot.messages,
-            { role: Role.User, content: format_message("allen", get(query)) } as Message
+            { role: Role.User, content: format_message("", get(query)) } as Message
         ];
 
         // Clear the input
         query.set("");
 
         // Add a visual indication that the AI is thinking
-        current_message = `${bot.name} думает...`;
+        // current_message = `${bot.name} думает...`;
 
         // Make the users message visible and the typing pre typing animation too
         setTimeout(scrollToBottom, 100);
@@ -83,15 +85,16 @@
 
         // Clear the typing animation
         current_message = "";
-        // Remove the message block
-        block_ask = false;
+
+        // Remove the message block and spinner animation
+        is_typing = false;
     }
 </script>
 
 <div class="flex h-screen overflow-hidden">
     <!-- <Sidebar /> -->
      {#if bot !== undefined}
-    <ChatArea name="Чат NeuralConf" messages={bot.messages} current_message={current_message} ask_function={ask} query={query} auto_scroll={container}/>
+    <ChatArea name="Чат NeuralConf" messages={bot.messages} current_message={current_message} ask_function={ask} query={query} auto_scroll={container} is_typing={is_typing}/>
     {/if}
 </div>
 

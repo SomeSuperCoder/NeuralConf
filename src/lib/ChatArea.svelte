@@ -9,6 +9,7 @@
     export let ask_function: any;
     export let query: Writable<string>;
     export let auto_scroll: Writable<HTMLDivElement | null>;
+    export let is_typing: boolean;
     
     let current_message_object;
     $: current_message_object = {role: Role.Assistant, content: current_message} as Message;
@@ -24,10 +25,10 @@
     <!-- Chat Messages -->
     <div bind:this={$auto_scroll} class="h-screen overflow-y-auto p-4 pb-36">
         {#each messages as message}
-        <MessageCard message={message} />
+        <MessageCard {message} />
         {/each}
-        {#if current_message.length > 0}
-        <MessageCard message={current_message_object} />
+        {#if is_typing}
+        <MessageCard {is_typing} message={current_message_object} />
         {/if}
     </div>
 
